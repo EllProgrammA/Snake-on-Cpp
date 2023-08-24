@@ -25,12 +25,17 @@ bool gameOver; //becomes true when game is over
 const int width = 20; //set size of the field
 const int height = 20;
 
-int headX, headY, fruitX, fruitY, score; //coordinates of the snake, fruits and amount of picked fruits
+int headX, headY, score; //coordinates of the snake, fruits and amount of picked fruits
+COORD fruitPos;
 
 const int maxTail = 50;
 int tailX[maxTail], tailY[maxTail]; // coordinates of snake's tail
 int nTail; //length of the snake's tail
 int lastX, lastY;
+
+COORD tailElements[maxTail]; //array with coordinates for whole snake
+							 //first element [0] is the head
+							 // last element is empty to erase the end of the tail
 
 enum eDirection{ STOP = 0, LEFT, RIGHT, UP, DOWN } dir; //direction of snake
 
@@ -44,12 +49,16 @@ int main()
 {
 	setup();
 
-	while (!gameOver) {
+	/*while (!gameOver) {
 		input();
 		logic();
 		draw();
 		Sleep(200); //small pause
-	}
+	}*/
+
+	short a = 25;
+	int i = a;
+	cout << i;
 
 	gotoxy(0, 30);
 	return 0;
@@ -73,8 +82,8 @@ void setup()
 	headY = height / 2;
 
 	srand(time(NULL)); //generating the first fruit
-	fruitX = 1 + (rand() % (width - 2));
-	fruitY = 1 + (rand() % (height - 2));
+	fruitPos.X = 1 + (rand() % (width - 2));
+	fruitPos.Y = 1 + (rand() % (height - 2));
 	score = 0;
 
 	//at start there's no tail
@@ -89,9 +98,15 @@ void setup()
 	//hide the cursor
 	HANDLE StdHandle = GetStdHandle(STD_OUTPUT_HANDLE);
 	CONSOLE_CURSOR_INFO CURSOR;
-	CURSOR.bVisible = FALSE;
+	CURSOR.bVisible = 0;
 	CURSOR.dwSize = 1;
 	SetConsoleCursorInfo(StdHandle, &CURSOR);
+
+
+
+
+
+	
 }
 
 
@@ -102,7 +117,7 @@ void draw() {
 	gotoxy(headX, headY);
 	cout << '0';
 
-	gotoxy(fruitX, fruitY);
+	gotoxy(fruitPos.X, fruitPos.Y);
 	cout << 'F';
 
 	gotoxy(7, 20);
@@ -228,14 +243,14 @@ void logic()
 	}
 
 	//if the snake eats a fruit
-	if (headX == fruitX && headY == fruitY) {
+	if (headX == fruitPos.X && headY == fruitPos.Y) {
 		score++; //we will get score
 
 		//generate a new fruit
 		do {
-			fruitX = 1 + (rand() % (width - 2));
-			fruitY = 1 + (rand() % (height - 2));
-		} while (isCoordInTail(fruitX, fruitY));
+			fruitPos.X = 1 + (rand() % (width - 2));
+			fruitPos.Y = 1 + (rand() % (height - 2));
+		} while (isCoordInTail(fruitPos.X, fruitPos.Y));
 
 		if (nTail < maxTail)
 			isTailGrown = true;
