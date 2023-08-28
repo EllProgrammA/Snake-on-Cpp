@@ -17,9 +17,9 @@ void gotoxy(COORD coord);				//change the cursor position
 void input();							//working with keyboard
 void logic();							//logic of the game
 void draw();							//drawing changing elements
-void drawStartScreen();					//drawing the start screen
+void drawStartScreen(COORD startPos);	//drawing the start screen
 void drawSnakeText(COORD startPosition);//drawing the "Snake" on the start screen
-void drawGameover();					//drawing the gameover screen
+void drawGameover(COORD startPosition);					//drawing the gameover screen
 bool isCoordInTail(COORD coord);		//checks if sth is in tail
 
 //---------------variables
@@ -71,6 +71,14 @@ int main()
 		Sleep(200);			//small pause
 	}
 
+	//showing gameover screen
+	COORD startPos = { 3,3 };
+	drawGameover(startPos);
+	bool gameoverScreenOff = _kbhit();
+	while (!gameoverScreenOff) {					//the start screen will be on
+		gameoverScreenOff = _kbhit();				//check if a key is pressed
+	}
+
 	//stuff to make the stopcode table under the field
 	COORD returnPlace = { 0, 30 };
 	gotoxy(returnPlace);
@@ -97,9 +105,9 @@ void setup()
 
 	//drawing the start screen
 	bool startScreenOff = _kbhit();				//while you don't tap any key
+	COORD startPos = { 3, 3 };
+	drawStartScreen(startPos);
 	while (!startScreenOff) {					//the start screen will be on
-		drawStartScreen();
-
 		startScreenOff = _kbhit();				//check if a key is pressed
 	}
 	system("cls");								//clear console to draw the field
@@ -276,7 +284,7 @@ void drawField() {
 
 
 //----------------------drawing the start screen
-void drawStartScreen() {
+void drawStartScreen(COORD startPosition) {
 	//
 	//   SSS         k
 	//   S           k
@@ -289,17 +297,16 @@ void drawStartScreen() {
 	//
 	//Press any key to start!!!
 
-	COORD startPos = { 3, 3 };
-	drawSnakeText(startPos);
+	drawSnakeText(startPosition);
 
-	startPos.X += 2;
-	startPos.Y += 6;
-	gotoxy(startPos);
+	startPosition.X += 2;
+	startPosition.Y += 6;
+	gotoxy(startPosition);
 	cout << "by EllProgrammA";
 
-	startPos.X = 0;
-	startPos.Y += 3;
-	gotoxy(startPos);
+	startPosition.X = startPosition.X - 5;
+	startPosition.Y += 3;
+	gotoxy(startPosition);
 	cout << "Press any key to start!!!";
 }
 
@@ -320,8 +327,32 @@ void drawSnakeText(COORD startPosition) { // drawing the "Snake" on the start sc
 }
 
 //----------------------drawing the gameover screen
-void drawGameover() {
+void drawGameover(COORD startPosition) {
+	// ----------------------------
+	// ||========================||
+	// |        |        |        |
+	//|          Gameover          |
+	// |        |        |        |
+	// ||========================||
+	// ----------------------------
+	// 
+	//     Press any key to exit
+	system("cls");
 
+	COORD cursorPosition = startPosition;
+	gotoxy(cursorPosition);
+	cout << " ----------------------------"; cursorPosition.Y++; gotoxy(cursorPosition);
+	cout << " ||========================||"; cursorPosition.Y++; gotoxy(cursorPosition);
+	cout << " |        |        |        |"; cursorPosition.Y++; gotoxy(cursorPosition);
+	cout << "|          Gameover          |"; cursorPosition.Y++; gotoxy(cursorPosition);
+	cout << " |        |        |        |"; cursorPosition.Y++; gotoxy(cursorPosition);
+	cout << " ||========================||"; cursorPosition.Y++; gotoxy(cursorPosition);
+	cout << " ----------------------------";
+
+	cursorPosition.Y += 2;
+	cursorPosition.X += 5;
+	gotoxy(cursorPosition);
+	cout << "Press any key to exit";
 }
 
 
