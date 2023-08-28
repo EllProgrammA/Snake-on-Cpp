@@ -1,4 +1,4 @@
-#include <iostream> //for working with console
+﻿#include <iostream> //for working with console
 #include <conio.h> //for working with keyboard
 #include <windows.h> //for small pause
 #include <ctime> //to set new values to srand()
@@ -11,33 +11,36 @@
 using namespace std;
 
 //---------------functions
-void setup();						//settings
-void drawField();					//drawing the field at first
-void gotoxy(COORD coord);			//change the cursor position
-void input();						//working with keyboard
-void logic();						//logic of the game
-void draw();						//drawing changing elements
-bool isCoordInTail(COORD coord);	//checks if sth is in tail
+void setup();							//settings
+void drawField();						//drawing the field at first
+void gotoxy(COORD coord);				//change the cursor position
+void input();							//working with keyboard
+void logic();							//logic of the game
+void draw();							//drawing changing elements
+void drawStartScreen();					//drawing the start screen
+void drawSnakeText(COORD startPosition);//drawing the "Snake" on the start screen
+void drawGameover();					//drawing the gameover screen
+bool isCoordInTail(COORD coord);		//checks if sth is in tail
 
 //---------------variables
-bool gameOver;						//becomes true when game is over
+bool gameOver;							//becomes true when game is over
 
-const int width = 20;				//set size of the field
+const int width = 20;					//set size of the field
 const int height = 20;
 
-int score;							//amount of picked fruits
+int score;								//amount of picked fruits
 
-COORD fruitPos;						//position of a fruit
+COORD fruitPos;							//position of a fruit
 
-const int maxLength = 50;			//maximum snake's length allowed
-int snakeLength;					//length of the snake
+const int maxLength = 50;				//maximum snake's length allowed
+int snakeLength;						//length of the snake
 
-COORD snakeElements[maxLength];		// array with coordinates for whole snake
-									// first element [0] is the head
-									// middle elements are the snake's tail
-									// last element is empty to erase the end of the tail
+COORD snakeElements[maxLength];			// array with coordinates for whole snake
+										// first element [0] is the head
+										// middle elements are the snake's tail
+										// last element is empty to erase the end of the tail
 
-enum eDirection						//direction of the snake
+enum eDirection							//direction of the snake
 { 
 	STOP,
 	LEFT, 
@@ -56,9 +59,10 @@ int main()
 {
 	setup();				//settings
 
-	while (dir == STOP) {
+	while (dir == STOP) {	//while snake is standing on one place, wait for the first tap
 		input();
 	}
+
 	//game process
 	while (!gameOver) {
 		input();			//working with a keyboard
@@ -87,16 +91,14 @@ void setup()
 	//hide the cursor
 	HANDLE StdHandle = GetStdHandle(STD_OUTPUT_HANDLE);
 	CONSOLE_CURSOR_INFO CURSOR;
-	CURSOR.bVisible = false;
+	CURSOR.bVisible = 0;
 	CURSOR.dwSize = 1;
 	SetConsoleCursorInfo(StdHandle, &CURSOR);
 
 	//drawing the start screen
 	bool startScreenOff = _kbhit();				//while you don't tap any key
 	while (!startScreenOff) {					//the start screen will be on
-		COORD sentence = { 10, 10 };
-		gotoxy(sentence);
-		cout << "Press any key to start!!!";
+		drawStartScreen();
 
 		startScreenOff = _kbhit();				//check if a key is pressed
 	}
@@ -124,56 +126,7 @@ void setup()
 
 
 
-//----------------------drawing
-void draw() {
-	//drawing a fruit
-	gotoxy(fruitPos);
-	cout << 'F';
 
-	//drawing the snake
-	gotoxy(snakeElements[0]);			//head
-	cout << '0';
-	gotoxy(snakeElements[1]);			//first element of the tail (others won't be erased)
-	cout << 'o';
-	gotoxy(snakeElements[snakeLength]);	//erase the last element
-	cout << ' ';
-
-	//showing score
-	COORD scoreCoord = { 7, 20 };
-	gotoxy(scoreCoord);
-	cout << score;
-}
-
-
-
-//----------------------drawing the field at start
-void drawField() {
-	for (int i = 0; i < height; i++) {
-		if ((i == 0) || (i == (height - 1))) {	//if we're on the top or the bottom, draw a border
-			for (int m = 0; m < width; m++) {
-				cout << "#";
-			}
-			cout << endl;
-		}
-		else {
-			for (int j = 0; j < width; j++) {
-				if (j == 0 || j == width - 1) { //if we're on the left or on the right side, draw a border
-					cout << "#";
-				}
-				else {
-					cout << ' ';
-				}
-			}
-			cout << endl;
-		}
-	}
-	cout << "Score: ";							//make a place to show score
-
-	gotoxy(snakeElements[0]);
-	cout << "0";
-	gotoxy(fruitPos);
-	cout << "F";
-}
 
 
 
@@ -266,6 +219,109 @@ void logic()
 	else if (snakeElements[0].Y < 1) {
 		snakeElements[0].Y = height - 2;
 	}
+}
+
+
+
+//----------------------drawing
+void draw() {
+	//drawing a fruit
+	gotoxy(fruitPos);
+	cout << 'F';
+
+	//drawing the snake
+	gotoxy(snakeElements[0]);			//head
+	cout << '0';
+	gotoxy(snakeElements[1]);			//first element of the tail (others won't be erased)
+	cout << 'o';
+	gotoxy(snakeElements[snakeLength]);	//erase the last element
+	cout << ' ';
+
+	//showing score
+	COORD scoreCoord = { 7, 20 };
+	gotoxy(scoreCoord);
+	cout << score;
+}
+
+
+
+//----------------------drawing the field at start
+void drawField() {
+	for (int i = 0; i < height; i++) {
+		if ((i == 0) || (i == (height - 1))) {	//if we're on the top or the bottom, draw a border
+			for (int m = 0; m < width; m++) {
+				cout << "#";
+			}
+			cout << endl;
+		}
+		else {
+			for (int j = 0; j < width; j++) {
+				if (j == 0 || j == width - 1) { //if we're on the left or on the right side, draw a border
+					cout << "#";
+				}
+				else {
+					cout << ' ';
+				}
+			}
+			cout << endl;
+		}
+	}
+	cout << "Score: ";							//make a place to show score
+
+	gotoxy(snakeElements[0]);
+	cout << "0";
+	gotoxy(fruitPos);
+	cout << "F";
+}
+
+
+//----------------------drawing the start screen
+void drawStartScreen() {
+	//
+	//   SSS         k
+	//   S           k
+	//   SSS nnn  aa k k eee
+	//     S n n a a kk  ee
+	//   SSS n n  aa k k eee
+	//
+	//     by EllProgrammA
+	//
+	//
+	//Press any key to start!!!
+
+	COORD startPos = { 3, 3 };
+	drawSnakeText(startPos);
+
+	startPos.X += 2;
+	startPos.Y += 6;
+	gotoxy(startPos);
+	cout << "by EllProgrammA";
+
+	startPos.X = 0;
+	startPos.Y += 3;
+	gotoxy(startPos);
+	cout << "Press any key to start!!!";
+}
+
+void drawSnakeText(COORD startPosition) { // drawing the "Snake" on the start screen
+	//   SSS         k
+	//   S           k
+	//   SSS nnn  aa k k eee
+	//     S n n a a kk  ee
+	//   SSS n n  aa k k eee
+
+	COORD cursorPosition = startPosition;
+	gotoxy(cursorPosition);
+	cout << "SSS         k"; cursorPosition.Y++; gotoxy(cursorPosition);
+	cout << "S           k"; cursorPosition.Y++; gotoxy(cursorPosition);
+	cout << "SSS nnn  aa k k eee"; cursorPosition.Y++; gotoxy(cursorPosition);
+	cout << "  S n n a a kk  ee"; cursorPosition.Y++; gotoxy(cursorPosition);
+	cout << "SSS n n  aa k k eee";
+}
+
+//----------------------drawing the gameover screen
+void drawGameover() {
+
 }
 
 
